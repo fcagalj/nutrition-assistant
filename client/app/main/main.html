@@ -1,0 +1,104 @@
+<div ng-include="'components/navbar/navbar.html'"></div>
+
+<div class="container contDiv">
+  <div class="buttons">
+    <button ng-disabled="addingNew" class="btn btn-primary" ng-click="addNewMeal()"><i class="glyphicon glyphicon-plus"></i>  Add new meal</button>
+    <button type="button" class="btn btn-default" ng-model="showFilter" bs-checkbox>Toggle filter</button>
+    <button type="button" class="btn btn-default" ng-click="filters = {}">Clear filters</button>
+  </div>
+  <div class="dateFilter" ng-show="showFilter">
+    <label class="control-label"><i class="fa fa-calendar"></i> <i class="fa fa-arrows-h"></i> <i class="fa fa-calendar"></i> Date range</small></label><br>
+    <input type="text" class="form-control" ng-model="filters.dateFrom" placeholder="Date From" autoclose="true" bs-datepicker>
+    <input type="text" class="form-control" ng-model="filters.dateTo" placeholder="Date To" autoclose="true" bs-datepicker>
+  </div>
+  <div class="timeFilter" ng-show="showFilter">
+    <label class="control-label"><i class="glyphicon glyphicon-time"></i> <i class="fa fa-arrows-h"></i> <i class="glyphicon glyphicon-time"></i> Time range</small></label><br>
+    <input type="text" class="form-control" ng-model="filters.timeFrom" placeholder="Time From" autoclose="true" bs-timepicker>
+    <input type="text" class="form-control" ng-model="filters.timeTo" placeholder="Time To" autoclose="true" bs-timepicker>
+  </div>
+  <div class="calendar">
+    <datepicker ng-model="filters.filterByDay"  show-weeks="true" class="well well-sm"></datepicker>
+  </div>
+</div>
+
+<div class="container">
+  <table class="table table-striped table-bordered table-hover">
+    <tr>
+      <th style="width:14%;"><i class="glyphicon glyphicon-calendar"></i>  Date</th>
+      <th style="width:14%;"><i class="glyphicon glyphicon-time"></i>  Time</th>
+      <th style="width:14%;"><i class="glyphicon glyphicon-cutlery"></i>   Meal Name</th>
+      <th style="width:14%;"><i class="glyphicon glyphicon-info-sign"></i>  Additional Info</th>
+      <th style="width:14%;"><i class="glyphicon glyphicon-fire"></i>  Calories</th>
+      <th style="width:14%;"><i class="glyphicon glyphicon-fire"></i>  Daily Total</th>
+      <th style="width:16%;"><i class="glyphicon glyphicon-cog"></i>  Actions</th>
+    </tr>
+    <tr ng-show="addingNew">
+      <td><div ng-class="{'has-error': !newMeal.dateTime, 'has-success':newMeal.dateTime}"><input type="text" class="form-control" ng-model="newMeal.dateTime" autoclose="true" bs-datepicker required></div></td>
+      <td><div ng-class="{'has-error': !newMeal.dateTime, 'has-success':newMeal.dateTime}"><input type="text" class="form-control" ng-model="newMeal.dateTime" autoclose="true" bs-timepicker required></div></td>
+      <td><div ng-class="{'has-error': !newMeal.name, 'has-success':newMeal.name}"><input class="form-control" type="text" ng-model="newMeal.name"/></div></td>
+      <td><div ng-class="'has-success'"><input class="form-control" type="text" ng-model="newMeal.info"/></div></td>
+      <td><div ng-class="{'has-error': !newMeal.calories, 'has-success':newMeal.calories}"><input class="form-control" type="number" ng-model="newMeal.calories" required/></div></td>
+      <td><div><input class="form-control" type="number" ng-disabled="true"/></div></td>
+      <td>
+        <div class="btnContainter">
+          <button ng-disabled="!newMeal.dateTime || !newMeal.name || !newMeal.calories"  ng-click="addMeal()" class="btn btn-success"><i class="glyphicon glyphicon-ok">Save</i></button>
+          <button class="btn btn-danger" ng-click="addingNew=false;"><i class="glyphicon glyphicon-remove">Cancel</i></button>
+        </div>
+      </td>
+    </tr>
+    <tr ng-repeat="meal in meals | calorieFilter:filters">
+      <td>
+        <span ng-show="!meal.$editing">{{meal.dateTime|date:'dd-MM-yyyy'}}</span>
+        <div ng-class="{ 'has-error': !tmpEditingMeal.dateTime, 'has-success':tmpEditingMeal.dateTime }">
+          <span ng-show="meal.$editing"><input type="text" class="form-control" ng-model="tmpEditingMeal.dateTime" autoclose="true" bs-datepicker /></span>
+        </div>
+      </td>
+      <td>
+        <span ng-show="!meal.$editing">{{meal.dateTime|date:'HH:mm'}}</span>
+        <div ng-class="{ 'has-error': !tmpEditingMeal.dateTime, 'has-success':tmpEditingMeal.dateTime }">
+          <span ng-show="meal.$editing"> <input type="text" class="form-control" ng-model="tmpEditingMeal.dateTime" autoclose="true" bs-timepicker /></span>
+        </div>
+      </td>
+      <td>
+        <span ng-show="!meal.$editing">{{meal.name}}</span>
+        <div ng-class="{ 'has-error': !tmpEditingMeal.name, 'has-success':tmpEditingMeal.name }">
+          <span ng-show="meal.$editing"><input type="text" class="form-control" ng-model="tmpEditingMeal.name"/></span>
+        </div>
+      </td>
+      <td>
+        <span ng-show="!meal.$editing">{{meal.info}}</span>
+        <div ng-class="'has-success'">
+          <span ng-show="meal.$editing"><input type="text" class="form-control"  ng-model="tmpEditingMeal.info"/></span>
+        </div>
+      </td>
+      <td>
+        <span ng-show="!meal.$editing">{{meal.calories}}</span>
+        <div ng-class="{ 'has-error': !tmpEditingMeal.calories, 'has-success':tmpEditingMeal.calories }">
+          <span ng-show="meal.$editing"><input type="number" class="form-control" ng-model="tmpEditingMeal.calories"/></span>
+        </div>
+      </td>
+      <td>
+        <span ng-class="{'caloriesExceeded' : meal.dailyCalories > dailyCalorieLimit, 'caloriesNotExceeded' : meal.dailyCalories <= dailyCalorieLimit}" ng-show="!meal.$editing">{{meal.dailyCalories}}</span>
+        <span ng-show="meal.$editing"><input type="number" class="form-control" ng-model="tmpEditingMeal.dailyCalories" ng-disabled="true"/></span>
+      </td>
+      <td>
+        <div ng-show="!meal.$editing" class="btnContainter">
+          <button class="btn btn-primary" ng-click="editMeal(meal)"><i class="glyphicon glyphicon-edit">Edit</i ></button>
+          <button class="btn btn-danger" ng-click="deleteMeal(meal)"><i class="glyphicon glyphicon-trash">Delete</i></button>
+        </div>
+        <div ng-show="meal.$editing"  class="btnContainter">
+          <button class="btn btn-success" ng-disabled="!tmpEditingMeal.dateTime || !tmpEditingMeal.name || !tmpEditingMeal.calories" ng-click="updateMeal(tmpEditingMeal)"><i class="glyphicon glyphicon-floppy-disk iconbtn">Save</i ></button>
+          <button class="btn btn-danger" ng-click="cancelEditing(meal)"><i class="glyphicon glyphicon-remove">Cancel</i></button>
+        </div>
+      </td>
+    </tr>
+  </table>
+</div>
+
+<footer class="footer">
+  <div class="container">
+    <p>Single page web app served by JSON REST API server (built with <a href="https://angularjs.org/">AngularJS</a> on frontend and <a href="http://nodejs.org/">Node.js</a> (+<a href="http://expressjs.com/">Express</a>) on backend)</p>
+  </div>
+</footer>
+
+
